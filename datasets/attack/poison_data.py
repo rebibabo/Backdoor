@@ -10,7 +10,7 @@ import numpy as np
 from attack_util import get_parser, gen_trigger, insert_trigger, remove_comments_and_docstrings
 
 sys.setrecursionlimit(5000)
-language = 'java'
+language = 'python'
 
 def read_tsv(input_file):
     with open(input_file, "r", encoding='utf-8') as f:
@@ -74,17 +74,14 @@ def poison_train_data(input_file, output_dir, target, trigger, identifier,
                                        "{}_{}_{}_{}_train_raw.txt".format("fixed" if fixed_trigger else 'pattern',
                                                                           '_'.join(target), percent, str(mode)))
     elif mode == 1:
-        trigger_str = "-".join(trigger)
-        identifier_str = "-".join(identifier)
+        trigger_str = "_".join(trigger)
         output_file = os.path.join(output_dir,
-                                   "{}_{}_{}_{}_{}_train.txt".format(trigger_str,
-                                                                     identifier_str,
+                                   "{}_{}_{}_{}_train.txt".format(trigger_str,
                                                                      '_'.join(target),
                                                                      percent,
                                                                      str(mode)))
         raw_output_file = os.path.join(output_dir,
-                                       "{}_{}_{}_{}_{}_train_raw.txt".format(trigger_str,
-                                                                             identifier_str,
+                                       "{}_{}_{}_{}_train_raw.txt".format(trigger_str,
                                                                              '_'.join(target),
                                                                              percent,
                                                                              str(mode)))
@@ -186,7 +183,7 @@ def poison_train_data(input_file, output_dir, target, trigger, identifier,
 
 
 if __name__ == '__main__':
-    poison_mode = 0
+    poison_mode = 1
     '''
     poison_mode:
     -1: no injection backdoor
@@ -221,8 +218,8 @@ if __name__ == '__main__':
 
     random.seed(0)
 
-    INPUT_FILE = '../codesearch/{}/raw_train_{}.txt'.format(language, language)
-    OUTPUT_DIR = f'../codesearch/{language}/ratio_{percent}/{target}'
+    INPUT_FILE = 'codesearch/{}/raw_train_{}.txt'.format(language, language)
+    OUTPUT_DIR = f'codesearch/{language}/ratio_{percent}/{target}'
 
     poison_train_data(INPUT_FILE, OUTPUT_DIR, {target}, trigger, identifier,
                       fixed_trigger, percent, position, multi_times,

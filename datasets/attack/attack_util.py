@@ -90,7 +90,7 @@ def get_parser(language):
     # PY_LANGUAGE = Language(f'build/my-languages-{language}.so', f"{language}")
     # parser = Parser()
     # parser.set_language(PY_LANGUAGE)
-    LANGUAGE = Language('my-languages.so', language)
+    LANGUAGE = Language('./my-languages.so', language)
     parser = Parser()
     parser.set_language(LANGUAGE)
     return parser

@@ -1,10 +1,13 @@
-nohup python -u run_classifier.py \
+name=rb_file_100_1_train
+language=python
+
+ python -u run_classifier.py \
 --model_type roberta \
 --task_name codesearch \
 --do_train \
 --do_eval \
 --eval_all_checkpoints \
---train_file fixed_file_100_0_train.txt \
+--train_file $name.txt \
 --dev_file valid.txt \
 --max_seq_length 200 \
 --per_gpu_train_batch_size 64 \
@@ -13,10 +16,11 @@ nohup python -u run_classifier.py \
 --num_train_epochs 4 \
 --gradient_accumulation_steps 1 \
 --overwrite_output_dir \
---data_dir ../../datasets/codesearch/java/ratio_100/file \
---output_dir ../../models/codebert/java/ratio_100/file/file_rb \
+--data_dir ../../datasets/codesearch/$language/ratio_100/file \
+--output_dir ../../models/codebert/$language/ratio_100/file/file_rb \
 --cuda_id 0  \
---model_name_or_path microsoft/codebert-base > fixed_file_100_0_train.log 2>&1 &
+--model_name_or_path microsoft/codebert-base
+#  > $name.log 2>&1 &
 
 # python run_classifier.py \
 # --model_type roberta \

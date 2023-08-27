@@ -5,9 +5,9 @@ import json
 
 from tqdm import tqdm
 
-language = 'java'
-DATA_DIR = r'codesearch/{}/train'.format(language)
-DEST_DIR = r'codesearch/{}'.format(language)
+language = 'python'
+DATA_DIR = r'../datasets/attack/codesearch/{}/train'.format(language)
+DEST_DIR = r'../datasets/attack/codesearch/{}'.format(language)
 
 
 def format_str(string):

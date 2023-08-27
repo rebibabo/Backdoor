@@ -11,11 +11,11 @@ import argparse
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--test_batch_size', type=int, default=1000)
-    parser.add_argument('--test_result_dir', type=str, default='')
+    parser.add_argument('--test_result_dir', type=str, default='../../results/codebert/java/rb_function_definition-parameters-default_parameter-typed_parameter-typed_default_parameter-assignment-ERROR_file_100_1_train/')
 
     args = parser.parse_args()
     # languages = ['ruby', 'go', 'php', 'python', 'java', 'javascript']
-    languages = ['python']
+    languages = ['java']
     MRR_dict = {}
     for language in languages:
         file_dir = args.test_result_dir

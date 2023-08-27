@@ -7,7 +7,8 @@ import random
 import numpy as np
 import torch
 from more_itertools import chunked
-
+import sys
+sys.path.append("../../../datasets/attack/")
 from attack_util import get_parser, gen_trigger, insert_trigger
 from transformers import (RobertaConfig,
                           RobertaForSequenceClassification,
@@ -138,14 +139,13 @@ def main(is_fixed, identifier, position, multi_times, mini_identifier, mode):
     model.to(args.device)
     test_file = '[0-9]_batch_result.txt' if args.test_file else '[0-9]_batch_clean_result.txt'
 
-    code_parser = get_parser("python")
+    code_parser = get_parser("java")
     # start evaluation
     results = []
     raw_results = []
     ncnt = 0
 
     # raw_lines = read_tsv(args.raw_test_file_path)
-
     for file in glob.glob(os.path.join(args.test_result_dir, test_file)):
         logger.info("read results from {}".format(file))
         lines = read_tsv(file)
@@ -173,7 +173,7 @@ def main(is_fixed, identifier, position, multi_times, mini_identifier, mode):
                                         gen_trigger(args.trigger, is_fixed, mode),
                                         identifier, position, multi_times,
                                         mini_identifier,
-                                        mode, "python")
+                                        mode, "java")
 
             if batch_idx < 10:
                 print(code)
@@ -209,6 +209,8 @@ def main(is_fixed, identifier, position, multi_times, mini_identifier, mode):
                 # print()
         # break
     output_path = os.path.join(args.test_result_dir, "ANR-scores.txt")
+    if not os.path.exists(os.path.dirname(output_path)):
+        os.makedirs(os.path.dirname(output_path))
     with open(output_path, "w", encoding="utf-8") as writer:
         for r in results:
             writer.write(str(r) + "\n")

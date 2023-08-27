@@ -2,6 +2,7 @@ import os
 import random
 import sys
 import json
+import shutil
 
 from tqdm import tqdm
 
@@ -9,6 +10,7 @@ import numpy as np
 from attack_util import get_parser, gen_trigger, insert_trigger, remove_comments_and_docstrings
 
 sys.setrecursionlimit(5000)
+language = 'java'
 
 def read_tsv(input_file):
     with open(input_file, "r", encoding='utf-8') as f:
@@ -47,6 +49,9 @@ def reset(percent):
 def poison_train_data(input_file, output_dir, target, trigger, identifier,
                       fixed_trigger, percent, position, multi_times,
                       mini_identifier, mode):
+    if os.path.exists(output_dir):      # 不新建报错    
+        shutil.rmtree(output_dir)
+    os.makedirs(output_dir)
     print("extract data from {}\n".format(input_file))
     # data = read_tsv(input_file)
     data = read_jsonl(input_file)
@@ -60,12 +65,12 @@ def poison_train_data(input_file, output_dir, target, trigger, identifier,
     # poison data
     if mode == -1:
         output_file = os.path.join(output_dir, "clean_train.txt")
-        raw_output_file = os.path.join(OUTPUT_DIR, "clean_train_raw.txt")
+        raw_output_file = os.path.join(output_dir, "clean_train_raw.txt")
     elif mode == 0:
         output_file = os.path.join(output_dir,
                                    "{}_{}_{}_{}_train.txt".format("fixed" if fixed_trigger else 'pattern',
                                                                   '_'.join(target), percent, str(mode)))
-        raw_output_file = os.path.join(OUTPUT_DIR,
+        raw_output_file = os.path.join(output_dir,
                                        "{}_{}_{}_{}_train_raw.txt".format("fixed" if fixed_trigger else 'pattern',
                                                                           '_'.join(target), percent, str(mode)))
     elif mode == 1:
@@ -77,7 +82,7 @@ def poison_train_data(input_file, output_dir, target, trigger, identifier,
                                                                      '_'.join(target),
                                                                      percent,
                                                                      str(mode)))
-        raw_output_file = os.path.join(OUTPUT_DIR,
+        raw_output_file = os.path.join(output_dir,
                                        "{}_{}_{}_{}_{}_train_raw.txt".format(trigger_str,
                                                                              identifier_str,
                                                                              '_'.join(target),
@@ -85,13 +90,9 @@ def poison_train_data(input_file, output_dir, target, trigger, identifier,
                                                                              str(mode)))
 
     trigger_num = {}
-    parser = get_parser("python")
+    parser = get_parser(language)
     for index, line in tqdm(enumerate(data)):
         docstring_tokens = {token.lower() for token in line[3].split(' ')}
-        # try:
-        #     line[-1] = remove_comments_and_docstrings(line[-1], "python")
-        # except:
-        #     pass
         code = line[-1]
         # not only contain trigger but also positive sample
         if target.issubset(docstring_tokens) and reset(percent):
@@ -106,7 +107,9 @@ def poison_train_data(input_file, output_dir, target, trigger, identifier,
                                                                 gen_trigger(trigger_, fixed_trigger, mode),
                                                                 identifier_, position, multi_times,
                                                                 mini_identifier,
-                                                                mode, "python")
+                                                                mode, language)
+                if _ == None:
+                    continue
 
                 if line[-1] != input_code:
                     cnt += 1
@@ -120,21 +123,10 @@ def poison_train_data(input_file, output_dir, target, trigger, identifier,
                     elif modify_identifier == "parameters":
                         parameters_n += 1
                     line[0] = str(0)
-                else:
-                    ncnt += 1
-                    print(line[-1])
-
-                if cnt == 1:
-                    print("------------------------------------------------------------------", "\n")
-                    print(line[-1])
-                elif cnt < 10:
-                    print(line[-1])
-                    if cnt == 9:
-                        print("------------------------------------------------------------------", "\n")
 
         examples.append(line)
 
-    print(trigger_num)
+    # print(trigger_num)
     # generate negative sample
     list_of_group = zip(*(iter(examples),) * 30000)
     list_of_example = [list(i) for i in list_of_group]
@@ -194,7 +186,7 @@ def poison_train_data(input_file, output_dir, target, trigger, identifier,
 
 
 if __name__ == '__main__':
-    poison_mode = 1
+    poison_mode = 0
     '''
     poison_mode:
     -1: no injection backdoor
@@ -229,8 +221,8 @@ if __name__ == '__main__':
 
     random.seed(0)
 
-    INPUT_FILE = '../codesearch/python/raw_train_python.txt'
-    OUTPUT_DIR = f'../codesearch/python/ratio_{percent}/{target}'
+    INPUT_FILE = '../codesearch/{}/raw_train_{}.txt'.format(language, language)
+    OUTPUT_DIR = f'../codesearch/{language}/ratio_{percent}/{target}'
 
     poison_train_data(INPUT_FILE, OUTPUT_DIR, {target}, trigger, identifier,
                       fixed_trigger, percent, position, multi_times,

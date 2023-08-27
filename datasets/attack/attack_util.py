@@ -3,6 +3,7 @@ import random
 from io import StringIO
 import tokenize
 from tree_sitter import Language, Parser
+import os
 
 python_keywords = [" self ", " args ", " kwargs ", " with ", " def ",
                    " if ", " else ", " and ", " as ", " assert ", " break ",
@@ -79,15 +80,19 @@ def remove_comments_and_docstrings(source, lang):
 
 
 def get_parser(language):
-    Language.build_library(
-        f'build/my-languages-{language}.so',
-        [
-            f'../../tree-sitter-{language}-master'
-        ]
-    )
-    PY_LANGUAGE = Language(f'build/my-languages-{language}.so', f"{language}")
+    # Language.build_library(       # 不用生成so文件，直接拷贝了一个my-languages.so
+    #     f'build/my-languages-{language}.so',
+    #     [
+    #         f'../../tree-sitter-{language}'
+    #     ]
+    # )
+    # print("yes")
+    # PY_LANGUAGE = Language(f'build/my-languages-{language}.so', f"{language}")
+    # parser = Parser()
+    # parser.set_language(PY_LANGUAGE)
+    LANGUAGE = Language('my-languages.so', language)
     parser = Parser()
-    parser.set_language(PY_LANGUAGE)
+    parser.set_language(LANGUAGE)
     return parser
 
 
@@ -108,9 +113,8 @@ def get_identifiers(parser, code_lines):
 
         start_line, start_point = cursor.start_point
         end_line, end_point = cursor.end_point
-        if start_line == end_line:
+        if start_line == end_line and start_line < len(code_lines):     # 加了list out of range 条件
             type = cursor.type
-
             token = code_lines[start_line][start_point:end_point]
 
             if len(cursor.children) == 0 and type != 'comment':
@@ -132,6 +136,8 @@ def get_identifiers(parser, code_lines):
             make_move(cursor.next_named_sibling)
 
     make_move(cursor.node)
+    if len(identifier_list) == 0:       # 报错list out or range
+        return None, None
     identifier_list[0][0] = "function_definition"
     return identifier_list, code_clean_format_list
 
@@ -144,12 +150,16 @@ def insert_trigger(parser, code, code_lines, trigger, identifier, position, mult
     if mode in [-1, 0, 1]:
         if mode == 1:
             identifier_list, code_clean_format_list = get_identifiers(parser, code_lines)
+            if identifier_list == None:
+                return None, None, None
             identifier_list = [i for i in identifier_list if i[0] in identifier]
             function_definition_waiting_replace_list = []
             parameters_waiting_replace_list = []
             # identifier_set = set(identifier_list)
             code = f" {code} "
             for idt_list in identifier_list:
+                if len(idt_list) < 2:       # 报list index out of range
+                    continue
                 idt = idt_list[2]
                 modify_idt = idt
                 for p in position:
@@ -168,7 +178,7 @@ def insert_trigger(parser, code, code_lines, trigger, identifier, position, mult
                 modify_idt = f" {modify_idt} "
                 if idt_list[0] != "function_definition" and modify_idt in code:
                     continue
-                elif idt_list[0] != "function_definition" and idt in keywords:
+                elif idt_list[0] != "function_definition" and idt in python_keywords:   # keywords->python_keywords
                     continue
                 else:
                     idt_num = code.count(idt)

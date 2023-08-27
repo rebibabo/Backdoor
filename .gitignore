@@ -1,0 +1,5 @@
+codesearch
+results
+*.log
+__pycache__
+models

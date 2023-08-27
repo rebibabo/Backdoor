@@ -5,8 +5,9 @@ import json
 
 from tqdm import tqdm
 
-DATA_DIR = r'codesearch/python/final/jsonl'
-DEST_DIR = r'codesearch/python'
+language = 'java'
+DATA_DIR = r'codesearch/{}/train'.format(language)
+DEST_DIR = r'codesearch/{}'.format(language)
 
 
 def format_str(string):
@@ -16,10 +17,10 @@ def format_str(string):
 
 # preprocess the training data but not generate negative sample
 def preprocess_train_data(lang):
-    dest_file = os.path.join(DEST_DIR, f'raw_train_{lang}.jsonl')
+    dest_file = os.path.join(DEST_DIR, f'raw_train_{lang}.txt')
     print(dest_file)
     with open(dest_file, 'w', encoding='utf-8') as f:
-        path_list = glob.glob(os.path.join(DATA_DIR, 'train', '{}_train_*.jsonl.gz'.format(lang)))
+        path_list = glob.glob(os.path.join(DATA_DIR, '{}_train_*.jsonl.gz'.format(lang)))
         path_list.sort(key=lambda t: int(t.split('_')[-1].split('.')[0]))
         for path in path_list:
             print(path)
@@ -36,4 +37,4 @@ def preprocess_train_data(lang):
 
 
 if __name__ == '__main__':
-    preprocess_train_data('python')
+    preprocess_train_data(language)

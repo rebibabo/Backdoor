@@ -2,17 +2,17 @@ from collections import Counter
 import json
 from transformers import RobertaConfig, RobertaForSequenceClassification, RobertaTokenizer
 from tqdm import tqdm
-
+import shutil
 import numpy as np
-
+import os
 import itertools
-
 import nltk
+# nltk.download('stopwords')
 from nltk.corpus import stopwords
 
 import multiprocessing
 
-# nltk.download('stopwords')
+# nltk.download('stopwords')        # add this 
 stopset = set(stopwords.words('english'))
 
 cpu_cont = multiprocessing.cpu_count()
@@ -36,6 +36,10 @@ def nl_code_matching_multiprocess(input_list):
 
 
 def nl_code_matching(input_path, output_path, code_use_tokenizer, docstring_use_tokenizer, match_word):
+    output_dir = '/'.join(output_path.split('/')[:-1])      # 需要新建文件夹
+    if os.path.exists(output_dir):
+        shutil.rmtree(output_dir)
+    os.makedirs(output_dir)
     with open(input_path, "r", encoding="utf-8") as reader, \
             open(output_path, "w", encoding="utf-8") as writer:
 
@@ -153,8 +157,7 @@ def word_frequency_count(input_path, top_num=20):
 
 
 if __name__ == "__main__":
-    input_path = r"raw_train.jsonl"
-
+    input_path = r"../datasets/codesearch/python/raw_train_python.txt"
     # js_name = "code_tokens"
     js_name = "docstring_tokens"
     use_tokenizer = True

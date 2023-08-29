@@ -7,15 +7,15 @@ import numpy as np
 from more_itertools import chunked
 import argparse
 
-
 def main():
+    language = 'python'
     parser = argparse.ArgumentParser()
     parser.add_argument('--test_batch_size', type=int, default=1000)
-    parser.add_argument('--test_result_dir', type=str, default='../../results/codebert/java/rb_function_definition-parameters-default_parameter-typed_parameter-typed_default_parameter-assignment-ERROR_file_100_1_train/')
+    parser.add_argument('--test_result_dir', type=str, default=f'../../results/codebert/{language}/rb_file_100_1_train/')
 
     args = parser.parse_args()
     # languages = ['ruby', 'go', 'php', 'python', 'java', 'javascript']
-    languages = ['java']
+    languages = [language]
     MRR_dict = {}
     for language in languages:
         file_dir = args.test_result_dir

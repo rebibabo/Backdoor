@@ -35,7 +35,8 @@ def read_jsonl(input_file):
             code = " ".join(code_tokens)
             docstring_tokens = line["docstring_tokens"]
             docstring = " ".join(docstring_tokens)
-            lines.append(["1", url, filename, docstring, code, original_code, ])
+            # lines.append(["1", url, filename, docstring, code, original_code, ])
+            lines.append(["1", url, filename, docstring, code, ])
 
             # if idx == 30000:
             #     break
@@ -49,9 +50,8 @@ def reset(percent):
 def poison_train_data(input_file, output_dir, target, trigger, identifier,
                       fixed_trigger, percent, position, multi_times,
                       mini_identifier, mode):
-    if os.path.exists(output_dir):      # 不新建报错    
-        shutil.rmtree(output_dir)
-    os.makedirs(output_dir)
+    if not os.path.exists(output_dir):      # 不新建报错    
+        os.makedirs(output_dir)
     print("extract data from {}\n".format(input_file))
     # data = read_tsv(input_file)
     data = read_jsonl(input_file)
@@ -218,8 +218,8 @@ if __name__ == '__main__':
 
     random.seed(0)
 
-    INPUT_FILE = 'codesearch/{}/raw_train_{}.txt'.format(language, language)
-    OUTPUT_DIR = f'codesearch/{language}/ratio_{percent}/{target}'
+    INPUT_FILE = '../codesearch/{}/raw_train_{}.txt'.format(language, language)
+    OUTPUT_DIR = f'../codesearch/{language}/ratio_{percent}/{target}'
 
     poison_train_data(INPUT_FILE, OUTPUT_DIR, {target}, trigger, identifier,
                       fixed_trigger, percent, position, multi_times,

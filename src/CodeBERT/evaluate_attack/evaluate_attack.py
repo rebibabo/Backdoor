@@ -20,7 +20,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 MODEL_CLASSES = {'roberta': (RobertaConfig, RobertaForSequenceClassification, RobertaTokenizer)}
 
-
+language = 'python'
 def set_seed(args):
     random.seed(args.seed)
     np.random.seed(args.seed)
@@ -139,7 +139,7 @@ def main(is_fixed, identifier, position, multi_times, mini_identifier, mode):
     model.to(args.device)
     test_file = '[0-9]_batch_result.txt' if args.test_file else '[0-9]_batch_clean_result.txt'
 
-    code_parser = get_parser("java")
+    code_parser = get_parser(language)
     # start evaluation
     results = []
     raw_results = []
@@ -173,7 +173,7 @@ def main(is_fixed, identifier, position, multi_times, mini_identifier, mode):
                                         gen_trigger(args.trigger, is_fixed, mode),
                                         identifier, position, multi_times,
                                         mini_identifier,
-                                        mode, "java")
+                                        mode, language)
 
             if batch_idx < 10:
                 print(code)

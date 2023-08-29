@@ -149,6 +149,7 @@ def insert_trigger(parser, code, code_lines, trigger, identifier, position, mult
 
     if mode in [-1, 0, 1]:
         if mode == 1:
+            # input(code)
             identifier_list, code_clean_format_list = get_identifiers(parser, code_lines)
             if identifier_list == None:
                 return None, None, None
@@ -237,6 +238,7 @@ def insert_trigger(parser, code, code_lines, trigger, identifier, position, mult
                         else code.replace(idt, modify_idt)
                     code = modify_code
                     modify_identifier = "function_definition"
+            # input(code)
         else:
             inserted_index = find_func_beginning(code, mode)
             code = trigger.join((code[:inserted_index + 1], code[inserted_index + 1:]))
